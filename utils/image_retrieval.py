@@ -15,20 +15,13 @@ import io
 from PIL import Image
 
 
-# POKEMON_BASE = "https://pokemondb.net/pokedex/"
-import requests
-
-
-import requests
-
-
 def _fetch_pokemon_by_region(region: str) -> list[tuple[int, str]]:
     region = region.lower()
 
     region_pokedex = {
         "kanto": (1, 151),
         "johto": (152, 251),
-        "hoenn": (252, 386),  # typo fixed
+        "hoenn": (252, 386),
         "sinnoh": (387, 493),
     }
 
@@ -219,10 +212,14 @@ def get_pokemon_imgs(region, base_dir: str = "pokemon_images"):
 
 def main():
     # Test _fetch_pokemon_by_region function
-    test_region = "johto"
-    print(f"Testing getting Pokemon images with region: {test_region}")
-    get_pokemon_imgs(test_region)
-    print(f"Test completed for region: {test_region}")
+    regions = ["kanto", "johto", "hoenn", "sinnoh"]
+    print("Getting Pokemon images for specified regions...\n")
+
+    for region in regions:
+        print(f"Processing region: {region}")
+        get_pokemon_imgs(region)
+        print(f"\n Finished processing region: {region}\n")
+    print("All regions processed.")
 
 
 if __name__ == "__main__":

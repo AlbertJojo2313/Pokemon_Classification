@@ -16,43 +16,43 @@ from PIL import Image
 
 
 # POKEMON_BASE = "https://pokemondb.net/pokedex/"
+import requests
+
+
+import requests
 
 
 def _fetch_pokemon_by_region(region: str) -> list[tuple[int, str]]:
     region = region.lower()
 
-    region_to_pokedex = {
-        "kanto": ["kanto"],
-        "johto": ["updated-johto"],
-        "hoenn": ["hoenn"],
-        "sinnoh": ["extended-sinnoh"],
-        "unova": ["updated-unova"],
-        "kalos": ["kalos-central", "kalos-coastal", "kalos-mountain"],
-        "alola": ["updated-alola"],
-        "galar": ["galar"],
-        "paldea": ["paldea"],
+    region_pokedex = {
+        "kanto": (1, 151),
+        "johto": (152, 251),
+        "hoenn": (252, 386),  # typo fixed
+        "sinnoh": (387, 493),
     }
 
-    if region not in region_to_pokedex:
+    if region not in region_pokedex:
         raise ValueError(f"Unknown region: {region}")
 
-    pokedex_list = region_to_pokedex[region]
+    start_num, end_num = region_pokedex[region]
+    pokemon_list = []
 
-    pokemon_dict = {}
+    for dex_id in range(start_num, end_num + 1):
+        try:
+            url = f"https://pokeapi.co/api/v2/pokemon/{dex_id}"
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
 
-    for pokedex_name in pokedex_list:
-        url = f"https://pokeapi.co/api/v2/pokedex/{pokedex_name}/"
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
+            data = response.json()
+            name = data["name"]
 
-        for entry in data["pokemon_entries"]:
-            dex_id = entry["entry_number"]
-            name = entry["pokemon_species"]["name"]
+            pokemon_list.append((dex_id, name))
 
-            pokemon_dict[dex_id] = name
+        except requests.RequestException as e:
+            print(f"Failed to retrieve data for dex ID {dex_id}: {e}")
 
-    return sorted(pokemon_dict.items())
+    return pokemon_list
 
 
 """
@@ -218,11 +218,11 @@ def get_pokemon_imgs(region, base_dir: str = "pokemon_images"):
 
 
 def main():
-    region = "kanto"
-
-    print(f"Retrieving Pokémon images for region: {region}")
-    get_pokemon_imgs(region)
-    print(f"Completed retrieval for region: {region}\n")
+    # Test _fetch_pokemon_by_region function
+    test_region = "johto"
+    print(f"Testing getting Pokemon images with region: {test_region}")
+    get_pokemon_imgs(test_region)
+    print(f"Test completed for region: {test_region}")
 
 
 if __name__ == "__main__":

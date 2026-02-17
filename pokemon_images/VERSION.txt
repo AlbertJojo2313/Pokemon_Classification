@@ -1,0 +1,8 @@
+Dataset Version History
+
+v1.0 - 02-16-2026
+- Initial Dataset
+- 2958 images
+- Kanto + Johto + Hoenn + Sinnoh
+- Official Artwork + Spirites + Home(3D)
+- Regular as well as shiny

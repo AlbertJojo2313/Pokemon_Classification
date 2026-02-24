@@ -14,10 +14,11 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v2
             
-            - name: Set up conda
-              uses: actions/setup-conda@v3
+            - name: Set up miniconda
+              uses: conda-incubator/setup-miniconda@v3
               with:
                 activate-environment: Poke_Img
+                channels: conda-forge, defaults
                 environment-file: environment.yml
                 python-version: '3.12'
                 auto-activate-base: false

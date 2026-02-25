@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Conda / environments
+*.egg-info/
+.env
+environment.yml.bak
+
+# Pytest
+.pytest_cache/
+.coverage
+
+# Mac
+.DS_Store
+
+# Data and models (too large for git)
+pokemon_images/
+*.pth
+*.pt
+*.ckpt

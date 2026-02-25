@@ -1,6 +1,6 @@
-albumentations==2.0.8
-numpy==2.4.2
-pillow==12.1.1
-pytest==9.0.2
-requests==2.32.5
-torch==2.10.0
+albumentations
+numpy
+pillow
+pytest
+requests
+torch

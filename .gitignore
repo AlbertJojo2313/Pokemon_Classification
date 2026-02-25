@@ -16,7 +16,6 @@ environment.yml.bak
 .DS_Store
 
 # Data and models (too large for git)
-pokemon_images/
 *.pth
 *.pt
 *.ckpt

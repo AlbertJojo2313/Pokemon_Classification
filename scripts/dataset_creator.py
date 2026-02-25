@@ -22,11 +22,14 @@ def get_transform(train=True):
     if train:
         transformations = [
             A.HorizontalFlip(p=0.5),
-            A.ShiftScaleRotate(
-                shift_limit=0.1, scale_limit=0.2, rotate_limit=30, p=0.8
-            ),
+            A.Affine(translate_percent=0.1, scale=(0.8, 1.2), rotate=(-30, 30), p=0.8),
             A.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1, p=0.8),
-            A.CoarseDropout(max_holes=2, max_height=8, max_width=8, p=0.5),
+            A.CoarseDropout(
+                num_holes_range=(1, 2),
+                hole_height_range=(4, 8),
+                hole_width_range=(4, 8),
+                p=0.5,
+            ),
         ]
 
     else:
@@ -75,6 +78,6 @@ class PokemonDataset(Dataset):
         except Exception as e:
             raise RuntimeError(f"Failed to load image {images}: {e}")
         if self.transform:
-            image = self.transform(image)
+            image = self.transform(image=image)["image"]
 
         return image, label

@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from PIL import Image
-from scripts.dataset_creator import PokemonDataset, get_transform
+from dataset_creator import PokemonDataset, get_transform
 
 
 @pytest.fixture

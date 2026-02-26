@@ -5,10 +5,6 @@
 Scrapes additional artwork for Pokémon (Gen 1–4) from multiple sources.
 Sprites are fully handled by pokemon_retrieval.py — this script adds artwork only.
 
-Intentionally excluded (already covered by pokemon_retrieval.py):
-    artwork_sugimori   — same as official_artwork.png from PokeAPI
-    dream_world        — requires cairo system library
-
 New files added per Pokémon:
     From PokemonDB (direct CDN URLs):
         artwork_gen1_us.jpg          — early Red/Blue US art (Kanto only)
@@ -16,7 +12,7 @@ New files added per Pokémon:
         artwork_global_link.png      — Global Link vector/action pose
 
     From HybridShivam GitHub (high-res Sugimori from Bulbapedia):
-        artwork_highres.png          — highest quality official Sugimori art
+        artwork_highres.png          — highest quality official Sugimori art 1 image
 """
 
 import os
@@ -85,7 +81,7 @@ def _write_metadata(writer, dex_id, name, variant, source, rel_path):
 
 
 def _scrape_pokemondb_artwork(folder_path, dex_id, name, writer, delay=0.6):
-    print(f"\n  [pokemondb artwork]")
+    print("\n[pokemondb artwork]")
     for url_template, filename, variant_label in POKEMONDB_ARTWORKS:
         url = url_template.format(name=name)
         dest = os.path.join(folder_path, filename)
@@ -105,7 +101,7 @@ def _scrape_hybridshivam_artwork(folder_path, dex_id, name, writer, delay=0.6):
     Downloads high-res official Sugimori artwork from the HybridShivam/Pokemon
     GitHub repository, which sources images from Bulbapedia.
     """
-    print(f"\n  [hybridshivam high-res artwork]")
+    print("\n  [hybridshivam high-res artwork]")
     url = HYBRIDSHIVAM_BASE.format(dex_id=dex_id)
     dest = os.path.join(folder_path, "artwork_highres.png")
     ok = _download(url, dest, delay)
@@ -117,8 +113,6 @@ def _scrape_hybridshivam_artwork(folder_path, dex_id, name, writer, delay=0.6):
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
-
-
 def scrape_extra_images(
     region: str, base_dir: str = "pokemon_images", delay: float = 0.6
 ):

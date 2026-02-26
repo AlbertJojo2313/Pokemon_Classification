@@ -2,10 +2,19 @@
 ### author: Albert Jojo
 
 """
-This script retrieves Pokémon sprite images from the PokeAPI based on a specified region.
-It organizes the images in a directory structure and maintains a metadata.csv file with details about each image.
-The main function is `get_pokemon_imgs(region)`, which takes a region name (e.g., "kanto", "johto", "hoenn", etc.) as input,
-fetches the corresponding Pokémon names, and downloads their sprites while updating the metadata.csv file.
+Retrieves Pokémon images from PokeAPI for regions up to Sinnoh (Gen 1–4).
+
+Images retrieved per Pokémon:
+    Official artwork:
+        official_artwork.png    — Ken Sugimori / modern official art
+        home_art.png            — Pokémon HOME render
+
+    Gen 6–7 sprites (high quality, consistent style, suitable for classification):
+        gen6_xy_front.png, gen6_xy_shiny_front.png
+        gen6_oras_front.png, gen6_oras_shiny_front.png
+        gen7_usum_front.png, gen7_usum_shiny_front.png
+
+The rest gens avoided due to low quality.
 """
 
 import requests
@@ -13,6 +22,43 @@ import os
 import csv
 import io
 from PIL import Image
+
+
+GEN_SPRITE_MAP = [
+    # Gen 6 — X/Y
+    ("generation-vi", "x-y", "front_default", "gen6_xy_front.png", "BILINEAR"),
+    ("generation-vi", "x-y", "front_shiny", "gen6_xy_shiny_front.png", "BILINEAR"),
+    # Gen 6 — OmegaRuby/AlphaSapphire
+    (
+        "generation-vi",
+        "omegaruby-alphasapphire",
+        "front_default",
+        "gen6_oras_front.png",
+        "BILINEAR",
+    ),
+    (
+        "generation-vi",
+        "omegaruby-alphasapphire",
+        "front_shiny",
+        "gen6_oras_shiny_front.png",
+        "BILINEAR",
+    ),
+    # Gen 7 — Ultra Sun/Ultra Moon
+    (
+        "generation-vii",
+        "ultra-sun-ultra-moon",
+        "front_default",
+        "gen7_usum_front.png",
+        "BILINEAR",
+    ),
+    (
+        "generation-vii",
+        "ultra-sun-ultra-moon",
+        "front_shiny",
+        "gen7_usum_shiny_front.png",
+        "BILINEAR",
+    ),
+]
 
 
 def _fetch_pokemon_by_region(region: str) -> list[tuple[int, str]]:
@@ -33,194 +79,127 @@ def _fetch_pokemon_by_region(region: str) -> list[tuple[int, str]]:
 
     for dex_id in range(start_num, end_num + 1):
         try:
-            url = f"https://pokeapi.co/api/v2/pokemon/{dex_id}"
-            response = requests.get(url, timeout=10)
+            response = requests.get(
+                f"https://pokeapi.co/api/v2/pokemon/{dex_id}", timeout=10
+            )
             response.raise_for_status()
-
             data = response.json()
-            name = data["name"]
-
-            pokemon_list.append((dex_id, name))
-
+            pokemon_list.append((dex_id, data["name"]))
         except requests.RequestException as e:
-            print(f"Failed to retrieve data for dex ID {dex_id}: {e}")
+            print(f"  Failed to retrieve data for dex ID {dex_id}: {e}")
 
     return pokemon_list
 
 
-"""
+def _download_and_save(
+    img_url: str,
+    img_path: str,
+    resize: tuple = (224, 224),
+    resample: str = "BILINEAR",
+) -> bool:
+    """Download an image from URL, resize, and save. Returns True on success."""
+    if os.path.exists(img_path):
+        print(f"  skip (exists) → {os.path.basename(img_path)}")
+        return True
+    try:
+        resp = requests.get(img_url, timeout=10)
+        resp.raise_for_status()
+        resample_filter = Image.NEAREST if resample == "NEAREST" else Image.BILINEAR
+        img = Image.open(io.BytesIO(resp.content)).convert("RGBA").convert("RGB")
+        img = img.resize(resize, resample_filter)
+        img.save(img_path)
+        print(f"  ✓ {os.path.basename(img_path)}")
+        return True
+    except Exception as e:
+        print(f"  ✗ {os.path.basename(img_path)} ({e})")
+        return False
 
-Input: region (str) - The Pokémon region to retrieve images for (e.g., "kanto", "johto", "hoenn", etc.)
-Output: Downloads Pokémon sprites for the specified region and writes metadata to a CSV file.
 
-Description: This script fetches Pokémon names based on the specified region, 
-retrieves their sprite images from the PokeAPI, saves them in a directory called "pokemon_images", 
-and updates a "metadata.csv" file with details about each image.   
-"""
+def get_pokemon_imgs(region: str, base_dir: str = "pokemon_images"):
+    """
+    Downloads all Pokémon images for the given region into flat per-Pokémon folders.
+    Appends rows to metadata.csv.
 
-
-def get_pokemon_imgs(region, base_dir: str = "pokemon_images"):
+    Input:  region (str) — "kanto", "johto", "hoenn", or "sinnoh"
+    Output: Images saved to {base_dir}/{dex_id:03d}_{name}/, metadata.csv updated
+    """
     pokemon_entries = _fetch_pokemon_by_region(region)
 
-    sprites_to_retrieve = {
-        "front_default": ("sprite", "front"),
-        "back_default": ("sprite", "back"),
-        "front_shiny": ("sprite", "shiny_front"),
-        "back_shiny": ("sprite", "shiny_back"),
-    }
-
-    # Resolve paths
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
+    project_root = os.path.dirname(script_dir)  # utils/ → project_root/
     data_path = os.path.join(project_root, base_dir)
     os.makedirs(data_path, exist_ok=True)
 
-    # Metadata setup
     metadata_path = os.path.join(data_path, "metadata.csv")
     write_header = not os.path.exists(metadata_path)
 
     with open(metadata_path, "a", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-
         if write_header:
             writer.writerow(
-                [
-                    "dex_id",
-                    "pokemon_name",
-                    "variant",
-                    "source",
-                    "image_path",
-                ]
+                ["dex_id", "pokemon_name", "variant", "source", "image_path"]
             )
 
         for dex_id, name in pokemon_entries:
-            url = f"https://pokeapi.co/api/v2/pokemon/{dex_id}/"
+            print(f"\n{'=' * 50}")
+            print(f"  {dex_id:03d} {name}")
+            print(f"{'=' * 50}")
 
             try:
-                response = requests.get(url, timeout=10)
-                response.raise_for_status()
-                data = response.json()
-
-                # Use API ID explicitly (avoid overwriting loop variable)
-                api_id = data["id"]
-
-                pok_folder = os.path.join(data_path, f"{api_id:03d}_{name}")
-                os.makedirs(pok_folder, exist_ok=True)
-
-                # --- SPRITES ---
-                for sprite_key, (source, file_prefix) in sprites_to_retrieve.items():
-                    sprite_url = data["sprites"].get(sprite_key)
-                    if not sprite_url:
-                        continue
-
-                    img_resp = requests.get(sprite_url, timeout=10)
-                    img_resp.raise_for_status()
-
-                    img = Image.open(io.BytesIO(img_resp.content)).convert("RGB")
-
-                    # Preserve sprite sharpness
-                    img = img.resize((224, 224), Image.NEAREST)
-
-                    image_filename = f"{file_prefix}.png"
-                    img_path = os.path.join(pok_folder, image_filename)
-                    img.save(img_path)
-
-                    relative_path = os.path.join(f"{api_id:03d}_{name}", image_filename)
-
-                    writer.writerow(
-                        [
-                            api_id,
-                            name,
-                            file_prefix,
-                            source,
-                            relative_path,
-                        ]
-                    )
-
-                    print(f"Saved sprite: {img_path}")
-
-                # --- OFFICIAL ARTWORK ---
-                official_artwork = (
-                    data.get("sprites", {})
-                    .get("other", {})
-                    .get("official-artwork", {})
-                    .get("front_default")
-                )
-
-                if official_artwork:
-                    img_resp = requests.get(official_artwork, timeout=10)
-                    img_resp.raise_for_status()
-
-                    img = Image.open(io.BytesIO(img_resp.content)).convert("RGB")
-                    img = img.resize((224, 224), Image.BILINEAR)
-
-                    image_filename = "official_artwork.png"
-                    img_path = os.path.join(pok_folder, image_filename)
-                    img.save(img_path)
-
-                    relative_path = os.path.join(f"{api_id:03d}_{name}", image_filename)
-
-                    writer.writerow(
-                        [
-                            api_id,
-                            name,
-                            "official_art",
-                            "official-artwork",
-                            relative_path,
-                        ]
-                    )
-
-                    print(f"Saved official artwork: {img_path}")
-
-                # --- POKÉMON HOME ARTWORK ---
-                home_art = (
-                    data.get("sprites", {})
-                    .get("other", {})
-                    .get("home", {})
-                    .get("front_default")
-                )
-
-                if home_art:
-                    img_resp = requests.get(home_art, timeout=10)
-                    img_resp.raise_for_status()
-
-                    img = Image.open(io.BytesIO(img_resp.content)).convert("RGB")
-                    img = img.resize((224, 224), Image.BILINEAR)
-
-                    image_filename = "home_art.png"
-                    img_path = os.path.join(pok_folder, image_filename)
-                    img.save(img_path)
-
-                    relative_path = os.path.join(f"{api_id:03d}_{name}", image_filename)
-
-                    writer.writerow(
-                        [
-                            api_id,
-                            name,
-                            "home_art",
-                            "pokemon_home",
-                            relative_path,
-                        ]
-                    )
-
-                    print(f"Saved Pokemon HOME artwork: {img_path}")
-
+                data = requests.get(
+                    f"https://pokeapi.co/api/v2/pokemon/{dex_id}/", timeout=10
+                ).json()
             except requests.RequestException as e:
-                print(f"Failed to retrieve data for {name}: {e}")
+                print(f"  Failed to fetch data: {e}")
                 continue
 
+            api_id = data["id"]
+            pok_folder = os.path.join(data_path, f"{api_id:03d}_{name}")
+            os.makedirs(pok_folder, exist_ok=True)
 
-def main():
-    # Test _fetch_pokemon_by_region function
-    regions = ["kanto", "johto", "hoenn", "sinnoh"]
-    print("Getting Pokemon images for specified regions...\n")
+            def save(url, filename, variant, source, resample="BILINEAR"):
+                if not url:
+                    return
+                img_path = os.path.join(pok_folder, filename)
+                ok = _download_and_save(url, img_path, resample=resample)
+                if ok:
+                    writer.writerow(
+                        [
+                            api_id,
+                            name,
+                            variant,
+                            source,
+                            os.path.join(f"{api_id:03d}_{name}", filename),
+                        ]
+                    )
 
-    for region in regions:
-        print(f"Processing region: {region}")
-        get_pokemon_imgs(region)
-        print(f"\n Finished processing region: {region}\n")
-    print("All regions processed.")
+            sprites = data["sprites"]
+            other = sprites.get("other", {})
+            versions = sprites.get("versions", {})
 
+            # ── Official artwork ──────────────────────────────────────────
+            print("\n  [artwork]")
+            save(
+                other.get("official-artwork", {}).get("front_default"),
+                "official_artwork.png",
+                "official_art",
+                "official-artwork",
+            )
+            save(
+                other.get("home", {}).get("front_default"),
+                "home_art.png",
+                "home_art",
+                "pokemon_home",
+            )
 
-if __name__ == "__main__":
-    main()
+            # ── Gen 6–7 sprites (high quality, 3D style) ─────────────────
+            print("\n  [gen sprites]")
+            for gen_key, ver_key, sprite_key, filename, resample in GEN_SPRITE_MAP:
+                url = versions.get(gen_key, {}).get(ver_key, {}).get(sprite_key)
+                save(
+                    url,
+                    filename,
+                    filename.replace(".png", ""),
+                    "pokeapi_versions",
+                    resample,
+                )

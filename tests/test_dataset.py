@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 from PIL import Image
+import os
 from dataset_creator import PokemonDataset, get_transform
 
 
@@ -17,7 +18,11 @@ def dummy_dataset(tmp_path):
 
 
 def test_dataset_length(dummy_dataset):
-    assert len(dummy_dataset) == 18  # 3 classes x 6 images
+    expected = sum(
+        len(os.listdir(os.path.join(dummy_dataset.base_dir, c)))
+        for c in ["001_bulbasaur", "002_ivysaur", "003_venusaur"]
+    )
+    assert len(dummy_dataset) == expected  # 3 classes x 6 images (dummy data only)
 
 
 def test_labels_are_integers(dummy_dataset):

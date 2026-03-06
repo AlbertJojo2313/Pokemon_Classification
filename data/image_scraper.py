@@ -20,7 +20,7 @@ import csv
 import time
 import requests
 
-from utils.image_retrieval import _fetch_pokemon_by_region
+from image_retrieval import _fetch_pokemon_by_region
 
 
 SESSION = requests.Session()

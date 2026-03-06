@@ -16,8 +16,8 @@ Usage:
 
 import argparse
 
-from utils.image_retrieval import get_pokemon_imgs
-from utils.image_scraper import scrape_extra_images
+from data.image_retrieval import get_pokemon_imgs
+from data.image_scraper import scrape_extra_images
 
 
 ALL_REGIONS = ["kanto", "johto", "hoenn", "sinnoh"]

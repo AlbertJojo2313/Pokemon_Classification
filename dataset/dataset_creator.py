@@ -249,6 +249,5 @@ def get_dataloaders(
 
 
 def get_num_classes(region="kanto"):
-
     start, end = DEX_RANGES[region]
     return end - start + 1

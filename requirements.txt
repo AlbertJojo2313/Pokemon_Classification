@@ -1,0 +1,6 @@
+albumentations
+numpy
+pillow
+pytest
+requests
+torch

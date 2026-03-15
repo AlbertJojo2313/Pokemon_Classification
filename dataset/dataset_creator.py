@@ -94,6 +94,35 @@ class PokemonDataset(Dataset):
 
 
 # ── Helper Functions ───────────────────────────────────
+def _resolve_regions(region):
+    """
+    Resolve the `region` argument into a list of valid region names.
+
+    Accepts:
+        - "all"                      → every region in DEX_RANGES
+        - a single region string     → ["kanto"]
+        - a list of region strings   → ["kanto", "johto", "hoenn"]
+    """
+    if region == "all":
+        return list(DEX_RANGES.keys())
+
+    if isinstance(region, str):
+        regions = [region]
+    else:
+        regions = list(region)
+
+    unknown = [r for r in regions if r not in DEX_RANGES]
+    if unknown:
+        raise ValueError(f"Unknown region(s): {unknown}. Valid options: {list(DEX_RANGES.keys())} or 'all'")
+
+    return regions
+
+
+def _merged_dex_range(regions):
+    """Return the (min, max) dex ID that spans all requested regions."""
+    start = min(DEX_RANGES[r][0] for r in regions)
+    end   = max(DEX_RANGES[r][1] for r in regions)
+    return start, end
 
 
 def _get_dex_id(folder_name: str) -> int:
@@ -106,8 +135,8 @@ def _get_dex_id(folder_name: str) -> int:
         raise ValueError(f"Invalid folder format: {folder_name}")
 
 
-def _in_region(folder_name, dex_range):
-
+def _in_range(folder_name, dex_range):
+    """Check whether a folder's dex ID falls within the given (start, end) range."""
     try:
         dex_id = _get_dex_id(folder_name)
         return dex_range[0] <= dex_id <= dex_range[1]
@@ -123,13 +152,13 @@ def _collect_samples(data_dir, dex_range):
         [
             f
             for f in data_path.iterdir()
-            if f.is_dir() and _in_region(f.name, dex_range)
+            if f.is_dir() and _in_range(f.name, dex_range)
         ],
         key=lambda f: _get_dex_id(f.name),
     )
 
     if not folders:
-        raise ValueError("No Pokémon folders found")
+        raise ValueError("No Pokémon folders found for the selected region(s)")
 
     idx_to_name = {i: folder.name for i, folder in enumerate(folders)}
 
@@ -200,18 +229,36 @@ def get_dataloaders(
     batch_size=BATCH_SIZE,
     seed=42,
 ):
+    """
+    Build train / val / test DataLoaders for one or more regions.
+
+    Parameters
+    ----------
+    base_dir : str
+        Path to the folder containing per-Pokémon image directories,
+        relative to the project root.
+    region : str | list[str]
+        One of:
+          - A single region name:          "kanto"
+          - A list of region names:        ["kanto", "johto"]
+          - The special value "all":        "all"  (loads every region)
+    batch_size : int
+    seed : int
+
+    Returns
+    -------
+    train_loader, val_loader, test_loader, idx_to_name
+    """
 
     script_dir = Path(os.path.abspath(__file__)).parent
     project_root = script_dir.parent
     data_dir = project_root / base_dir
 
-    if region not in DEX_RANGES:
-        raise ValueError(f"Unknown region: {region}")
-
-    dex_range = DEX_RANGES[region]
+    regions = _resolve_regions(region)
+    dex_range = _merged_dex_range(regions)
 
     print(f"\nLoading dataset: {data_dir}")
-    print(f"Region: {region} ({dex_range[0]}-{dex_range[1]})")
+    print(f"Region(s): {', '.join(regions)}  (dex {dex_range[0]}-{dex_range[1]})")
 
     samples, idx_to_name = _collect_samples(data_dir, dex_range)
 
@@ -249,5 +296,12 @@ def get_dataloaders(
 
 
 def get_num_classes(region="kanto"):
-    start, end = DEX_RANGES[region]
+    """
+    Return the number of Pokémon classes for the given region(s).
+
+    Accepts the same values as `get_dataloaders`'s `region` parameter:
+    a single region name, a list of region names, or "all".
+    """
+    regions = _resolve_regions(region)
+    start, end = _merged_dex_range(regions)
     return end - start + 1

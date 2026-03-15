@@ -11,6 +11,7 @@ environment.yml.bak
 # Pytest
 .pytest_cache/
 .coverage
+.dataset_creator_hash.json
 
 # Mac
 .DS_Store

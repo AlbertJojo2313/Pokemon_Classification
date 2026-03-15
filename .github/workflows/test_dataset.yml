@@ -1,10 +1,16 @@
-name: Run Tests
+name: Dataset Creator Tests
 
 on:
     push:
         branches: ["**"]
+        paths:
+          - 'dataset/dataset_creator.py'
+          - 'tests/test_dataset_creator.py'
     pull_request:
         branches: [main]
+        paths:
+          - 'dataset/dataset_creator.py'
+          - 'tests/test_dataset_creator.py'
 
 jobs:
     test:
@@ -12,7 +18,7 @@ jobs:
         
         steps:
             - name: Checkout code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
             
             - name: Set up miniconda
               uses: conda-incubator/setup-miniconda@v3
@@ -22,13 +28,7 @@ jobs:
                 environment-file: environment.yml
                 python-version: '3.12'
                 auto-activate-base: false
-            
-
-            - name: Install dependencies
-              shell: bash -el {0}
-              run: pip install -r requirements.txt
-            
 
             - name: Run tests
               shell: bash -el {0}
-              run: pytest tests/
+              run: pytest tests/test_dataset_creator.py -v

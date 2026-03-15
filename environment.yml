@@ -1,14 +1,25 @@
 name: Poke_Img
+
 channels:
-  - defaults
+  - pytorch
+  - nvidia
   - conda-forge
+  - defaults
+
 dependencies:
   - python=3.12
   - pip
-  - pip:
-    - torch
-    - albumentations
-    - pillow
-    - numpy
-    - pytest
-    - requests
+
+  # PyTorch with CUDA (GPU support)
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda
+
+  # Other packages
+  - albumentations
+  - pillow
+  - numpy
+  - pytest
+  - requests
+  - matplotlib

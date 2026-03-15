@@ -1,13 +1,14 @@
+# Trains the model on all the regions in the dataset (Kanto-Johto-Hoenn-Sinnoh)
+
 from base_trainer import Trainer
 from dataset.dataset_creator import BATCH_SIZE
 
 def main():
-    # --- Trainer
     trainer = Trainer(
-        regions=["kanto"], 
-        num_epochs=35,
+        regions=['kanto', 'johto', 'hoenn', 'sinnoh'],
+        num_epochs=100,
         batch_size=BATCH_SIZE,
-        early_stopping_patience=8
+        early_stopping_patience=15
     )
     trainer.train()
     trainer.plot_metrics()

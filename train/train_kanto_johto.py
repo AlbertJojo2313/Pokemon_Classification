@@ -1,11 +1,12 @@
 from base_trainer import Trainer
 from dataset.dataset_creator import BATCH_SIZE
 
+
 def main():
     # --- Trainer
     trainer = Trainer(
-        regions=["kanto"], 
-        num_epochs=35,
+        regions=["kanto", "johto"], 
+        num_epochs=64,
         batch_size=BATCH_SIZE,
         early_stopping_patience=8
     )

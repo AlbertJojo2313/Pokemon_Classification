@@ -1,34 +1,34 @@
 import torch.nn as nn
-from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
+from torchvision.models import efficientnet_b2, EfficientNet_B2_Weights
 
 
-class PokemonClassifierEfficientNetB0(nn.Module):
+class PokemonClassifierEfficientNetB2_3reg(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
+        weights = (EfficientNet_B2_Weights.DEFAULT)
 
-        weights = (
-            EfficientNet_B0_Weights.DEFAULT
-        )  # Avoids preprocessing issues with normalization
-        self.model = efficientnet_b0(weights=weights)
+        self.model = efficientnet_b2(weights=weights)
 
         in_features = self.model.classifier[1].in_features
-
+        
         self.model.classifier[1] = nn.Sequential(
             nn.Dropout(0.3),
-            nn.Linear(in_features, 512),
+            nn.Linear(in_features, 1024),
+            nn.BatchNorm1d(1024),
+            nn.ReLU(),
+            nn.Dropout(0.4),
+            nn.Linear(1024, 512),
             nn.BatchNorm1d(512),
             nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(512, num_classes),
+            nn.Dropout(0.35),
+            nn.Linear(512, num_classes),  # 386
         )
-
     # Freeze all layers except the classifier
     def freeze_backbone(self):
-
         for param in self.model.features.parameters():
             param.requires_grad = False
-
-    # Unfreeze all layers for fine-tuning
+    
+    # Unfreeze all layers
     def unfreeze_backbone(self):
         for param in self.model.features.parameters():
             param.requires_grad = True

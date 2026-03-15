@@ -19,3 +19,7 @@ environment.yml.bak
 # Data and models (too large for git)
 *.pt
 *.ckpt
+
+#Adding logs for the models, and weights
+outputs/checkpoints/*
+outputs/logs/*

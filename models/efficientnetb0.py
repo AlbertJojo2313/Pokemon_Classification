@@ -7,7 +7,7 @@ class PokemonClassifierEfficientNetB0(nn.Module):
         super().__init__()
 
         weights = (
-            EfficientNet_B0_Weights.DEFAULT.transforms()
+            EfficientNet_B0_Weights.DEFAULT
         )  # Avoids preprocessing issues with normalization
         self.model = efficientnet_b0(weights=weights)
 

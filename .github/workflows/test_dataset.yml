@@ -1,0 +1,34 @@
+name: Dataset Creator Tests
+
+on:
+    push:
+        branches: ["**"]
+        paths:
+          - 'dataset/dataset_creator.py'
+          - 'tests/test_dataset_creator.py'
+    pull_request:
+        branches: [main]
+        paths:
+          - 'dataset/dataset_creator.py'
+          - 'tests/test_dataset_creator.py'
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            
+            - name: Set up miniconda
+              uses: conda-incubator/setup-miniconda@v3
+              with:
+                activate-environment: Poke_Img
+                channels: conda-forge, defaults
+                environment-file: environment.yml
+                python-version: '3.12'
+                auto-activate-base: false
+
+            - name: Run tests
+              shell: bash -el {0}
+              run: pytest tests/test_dataset_creator.py -v

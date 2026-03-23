@@ -21,5 +21,8 @@ environment.yml.bak
 *.ckpt
 
 #Adding logs for the models, and weights
-outputs/checkpoints/*
 outputs/logs/*
+outputs/checkpoints/*
+
+# Keep on the selected model file
+!outputs/checkpoints/best_model_kanto_johto_hoenn_sinnoh_efficientnetb2.pth

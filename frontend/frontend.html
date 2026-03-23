@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Mar 23 14:08:58 2026
+
+@author: tonypisano
+"""
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Real Life Pokédex</title>
+
+<style>
+  body {
+    font-family: 'Trebuchet MS', sans-serif;
+    background: linear-gradient(to bottom, #ff0000 0%, #ffffff 50%);
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    background: white;
+    border: 5px solid black;
+    border-radius: 20px;
+    width: 60%;
+    margin: 50px auto;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
+
+  h1 {
+    color: #ff0000;
+    font-size: 3em;
+    text-shadow: 2px 2px black;
+  }
+
+  p {
+    font-size: 1.2em;
+  }
+
+  .pokeball {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(to bottom, red 50%, white 50%);
+    border-radius: 50%;
+    border: 5px solid black;
+    margin: 20px auto;
+    position: relative;
+  }
+
+  /* center button properly */
+  .pokeball::after {
+    content: '';
+    width: 30px;
+    height: 30px;
+    background: white;
+    border: 5px solid black;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* middle black line */
+  .pokeball::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 5px;
+    background: black;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+  }
+
+  button {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: black;
+  }
+
+  input[type="file"] {
+    margin: 15px 0;
+  }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="pokeball"></div>
+
+  <h1>The Real Life Pokédex</h1>
+
+  <p><strong>How it works:</strong></p>
+  <p>📸 Upload a photo of your preferred Pokémon</p>
+  <p>✨ Let the magic happen!</p>
+  <p>🔍 Output is the Pokémon of the photo!</p>
+  <p>❓ If you have any questions...</p>
+  <p><strong>Ask the professionals! 😎</strong></p>
+
+  <form>
+    <label for="imageUpload"><strong>Choose your Pokémon:</strong></label><br>
+    <input type="file" id="imageUpload" name="imageUpload" accept="image/*"><br>
+    <button type="submit">Scan Pokémon</button>
+  </form>
+
+</div>
+
+</body>
+</html>
+

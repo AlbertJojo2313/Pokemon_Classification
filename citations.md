@@ -14,3 +14,7 @@ Pretrained Model:
   year={2019},
   volume={abs/1905.11946}
 }
+
+
+## Testing Model (Outside Resource Kaggle)
+Vishal Subbiah[Pokemon Image Dataset]

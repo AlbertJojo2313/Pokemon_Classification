@@ -11,7 +11,7 @@ class PokemonClassifierEfficientNetB2_4reg(nn.Module):
         self. model = efficientnet_b2(weights=weights)
 
         in_features = self.model.classifier[1].in_features
-        """
+        
         self.model.classifier[1] = nn.Sequential(
             nn.Dropout(0.3),
             nn.Linear(in_features, 1024),
@@ -24,19 +24,7 @@ class PokemonClassifierEfficientNetB2_4reg(nn.Module):
             nn.Dropout(0.35),
             nn.Linear(512, num_classes),
         )
-        """
-        self.model.classifier[1] = nn.Sequential(
-            nn.Dropout(0.3),
-            nn.Linear(in_features, 512),
-            nn.BatchNorm1d(512),
-            nn.ReLU(),
-            nn.Dropout(0.4),
-            nn.Linear(512, 256),
-            nn.BatchNorm1d(256),
-            nn.ReLU(),
-            nn.Dropout(0.35),
-            nn.Linear(256, num_classes),
-        )
+       
     # Freeze all layers except the classifier
     def freeze_backbone(self):
         for param in self.model.features.parameters():

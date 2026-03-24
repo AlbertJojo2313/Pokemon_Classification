@@ -8,8 +8,8 @@ import torch
 import logging
 from dataset.dataset_creator import get_dataloaders, get_num_classes, BATCH_SIZE
 from models.efficientnetb0 import PokemonClassifierEfficientNetB0
-from models.efficientnetb2 import PokemonClassifierEfficientNetB2
 from models.efficientnetb2_3reg import PokemonClassifierEfficientNetB2_3reg
+from models.efficientnetb2_4reg import PokemonClassifierEfficientNetB2_4reg
 
 LOG_DIR = ROOT / "outputs" / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -19,15 +19,8 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _select_model(regions, num_classes):
-    """
-    Select model architecture based on number of regions.
-    Single region  → EfficientNetB0 (lighter, sufficient for ~151 classes)
-    Multiple regions → EfficientNetB2 (more capacity for 251+ classes)
-    """
     if len(regions) == 1:
         return PokemonClassifierEfficientNetB0(num_classes=num_classes), "efficientnetb0"
-    elif len(regions)> 1:
-        return PokemonClassifierEfficientNetB2(num_classes=num_classes), "efficientnetb2"
     else:
         return PokemonClassifierEfficientNetB2_3reg(num_classes=num_classes), "efficientnetb2"
 

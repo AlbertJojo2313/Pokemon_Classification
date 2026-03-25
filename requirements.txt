@@ -6,3 +6,4 @@ requests
 torch
 fastapi
 uvicorn
+python-multipart

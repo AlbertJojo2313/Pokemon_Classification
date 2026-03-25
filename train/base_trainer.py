@@ -8,8 +8,7 @@ import torch
 import logging
 from dataset.dataset_creator import get_dataloaders, get_num_classes, BATCH_SIZE
 from models.efficientnetb0 import PokemonClassifierEfficientNetB0
-from models.efficientnetb2_3reg import PokemonClassifierEfficientNetB2_3reg
-from models.efficientnetb2_4reg import PokemonClassifierEfficientNetB2_4reg
+from models.efficientnetb2_allreg import PokemonClassifierEfficientNetB2_3reg
 
 LOG_DIR = ROOT / "outputs" / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -20,9 +19,13 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 def _select_model(regions, num_classes):
     if len(regions) == 1:
-        return PokemonClassifierEfficientNetB0(num_classes=num_classes), "efficientnetb0"
+        return PokemonClassifierEfficientNetB0(
+            num_classes=num_classes
+        ), "efficientnetb0"
     else:
-        return PokemonClassifierEfficientNetB2_3reg(num_classes=num_classes), "efficientnetb2"
+        return PokemonClassifierEfficientNetB2_3reg(
+            num_classes=num_classes
+        ), "efficientnetb2"
 
 
 # ── Trainer ────────────────────────────────────────────
@@ -205,9 +208,7 @@ class Trainer:
                     f"No improvement for {epochs_no_improve}/{self.early_stopping_patience} epochs"
                 )
                 if epochs_no_improve >= self.early_stopping_patience:
-                    self.logger.info(
-                        f"Early stopping triggered at epoch {epoch + 1}"
-                    )
+                    self.logger.info(f"Early stopping triggered at epoch {epoch + 1}")
                     break
 
             self.logger.info(

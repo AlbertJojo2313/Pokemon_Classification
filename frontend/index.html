@@ -1,0 +1,47 @@
+
+
+
+<!---@author: tonypisano--->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Real Life Pokédex</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="pokeball"></div>
+
+  <h1>The Real Life Pokédex</h1>
+
+  <p><strong>How it works:</strong></p>
+  <p>📸 Upload a photo of your preferred Pokémon</p>
+  <p>✨ Let the magic happen!</p>
+  <p>🔍 Output is the Pokémon of the photo!</p>
+  <p>❓ If you have any questions...</p>
+  <p><strong>Ask the professionals! 😎</strong></p>
+
+  <form id="pokemonForm">
+    <label for="imageUpload"><strong>Choose your Pokémon:</strong></label><br>
+    <input type="file" id="imageUpload" name="imageUpload" accept="image/*"><br>
+    <button type="submit">Scan Pokémon</button>
+  </form>
+
+  <!-- Result hidden until prediction returns -->
+  <div id="result" style="display:none;">
+    <hr>
+    <h2>🔍 Scan Result </h2>
+    <p id="pokemonName"></p>
+    <p id="pokemonConfidence"></p>
+  </div>
+
+</div>
+<script src="/static/script.js"></script>
+</body>
+</html>
+

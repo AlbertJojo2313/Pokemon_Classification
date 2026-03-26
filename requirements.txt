@@ -4,3 +4,6 @@ pillow
 pytest
 requests
 torch
+fastapi
+uvicorn
+python-multipart

@@ -1,0 +1,1 @@
+from .efficientnetb2_allreg import PokemonClassifierEfficientNetB2_3reg

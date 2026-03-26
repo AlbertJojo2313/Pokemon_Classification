@@ -11,12 +11,18 @@ environment.yml.bak
 # Pytest
 .pytest_cache/
 .coverage
+.dataset_creator_hash.json
 
 # Mac
 .DS_Store
 
 # Data and models (too large for git)
-pokemon_images/
-*.pth
 *.pt
 *.ckpt
+
+#Adding logs for the models, and weights
+outputs/logs/*
+outputs/checkpoints/*
+
+# Keep on the selected model file
+!outputs/checkpoints/best_model_kanto_johto_hoenn_sinnoh_efficientnetb2.pth

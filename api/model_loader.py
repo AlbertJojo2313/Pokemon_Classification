@@ -14,8 +14,6 @@ CHECKPOINT_PATH = os.path.join(
     "best_model_kanto_johto_hoenn_sinnoh_efficientnetb2.pth",
 )
 
-CLASS_NAMES = sorted(os.listdir(IMAGES_DIR))
-
 
 def get_transform():
     """Match the exact transforms used during training."""
@@ -35,6 +33,7 @@ def load_model():
         CHECKPOINT_PATH,
         map_location=torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     )
+    class_names = checkpoint["class_names"]
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
-    return model
+    return model, class_names

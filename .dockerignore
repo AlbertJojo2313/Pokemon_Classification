@@ -1,0 +1,41 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Data folders (large, not needed at runtime)
+pokemon_images/
+test_images/
+data/
+
+# Training scripts (not needed at runtime)
+train/
+dataset/
+
+# Test files
+tests/
+conftest.py
+test_model.py
+
+# Output files except the model checkpoint
+outputs/logs/
+outputs/plots/
+
+# Git and IDE
+.git/
+.gitignore
+.DS_Store
+
+# Docs
+README.md
+citations.md
+Processes.md
+
+# Environment files
+environment.yml

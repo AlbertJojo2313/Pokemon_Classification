@@ -260,6 +260,7 @@ class Trainer:
             "train_accuracies": self.train_accuracies,
             "val_losses": self.val_losses,
             "val_accuracies": self.val_accuracies,
+            "class_names": self.idx_to_name,
         }
         torch.save(checkpoint, path)
         self.logger.info(f"Checkpoint saved to {path}")
